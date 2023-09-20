@@ -31,6 +31,10 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	FRotator Rotation = GetComponentRotation();
 	UE_LOG(LogTemp, Display, TEXT("%s"), *Rotation.ToCompactString());
 
+	UWorld *World = GetWorld();
+	UE_LOG(LogTemp, Display, TEXT("%d"), World->GetTimeSeconds());
+	
+	
 	// ...
 }
 
