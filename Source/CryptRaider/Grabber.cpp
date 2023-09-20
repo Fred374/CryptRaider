@@ -10,7 +10,6 @@ UGrabber::UGrabber()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
 }
 
 
@@ -18,8 +17,6 @@ UGrabber::UGrabber()
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
 	
 }
 
@@ -28,13 +25,9 @@ void UGrabber::BeginPlay()
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	FRotator Rotation = GetComponentRotation();
-	UE_LOG(LogTemp, Display, TEXT("%s"), *Rotation.ToCompactString());
-
-	UWorld *World = GetWorld();
-	UE_LOG(LogTemp, Display, TEXT("%d"), World->GetTimeSeconds());
+	FVector Start = GetComponentLocation();
+	FVector End = Start + GetForwardVector() * MaxGrabDist;
+	DrawDebugLine(GetWorld(), Start, End, FColor::Silver);
 	
-	
-	// ...
 }
 
