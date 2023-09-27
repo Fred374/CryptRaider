@@ -33,9 +33,4 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	FHitResult HitResult;
 	bool HasHit = GetWorld()->SweepSingleByChannel(HitResult, Start, End,
 	 FQuat::Identity, ECC_GameTraceChannel2, Sphere);
-
-	UE_LOG(LogTemp, Display, TEXT("It Hit: %d"), HasHit);
-	if (HasHit) {
-		UE_LOG(LogTemp, Display, TEXT("Hit What: %s"), *HitResult.GetActor()->GetActorNameOrLabel());
-	}
 }
