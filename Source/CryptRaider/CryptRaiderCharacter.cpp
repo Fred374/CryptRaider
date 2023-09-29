@@ -69,23 +69,6 @@ void ACryptRaiderCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACryptRaiderCharacter::Look);
-
-		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Triggered, this, &ACryptRaiderCharacter::Grab);
-		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Completed, this, &ACryptRaiderCharacter::Drop);
-	}
-}
-
-void ACryptRaiderCharacter::Grab(const FInputActionValue& Value) {
-
-	bool curVal = Value.Get<bool>();
-	if (Controller != nullptr) {
-		UE_LOG(LogTemp, Display, TEXT("Grabbed"));
-	}
-}
-
-void ACryptRaiderCharacter::Drop(const FInputActionValue& Value) {
-	if (Controller != nullptr) {
-		UE_LOG(LogTemp, Display, TEXT("Dropped"));
 	}
 }
 
