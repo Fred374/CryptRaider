@@ -18,8 +18,7 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-
+	UPhysicsHandleComponent *PhysicsHandle = GetPhysicsHandle();
 	if (PhysicsHandle == nullptr) {
 		UE_LOG(LogTemp, Error, TEXT("Physics Handle Component is null"));
 	}
@@ -31,35 +30,54 @@ void UGrabber::BeginPlay()
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	UPhysicsHandleComponent *PhysicsHandle = GetPhysicsHandle();
 	
-	if (PhysicsHandle == nullptr)
-		return;
+	if (PhysicsHandle && PhysicsHandle->GetGrabbedComponent()) {
+		PhysicsHandle->GetGrabbedComponent()->WakeAllRigidBodies();
+		FVector TargetLocation = GetComponentLocation() + GetForwardVector() * HoldDist;
 
-	FVector TargetLocation = GetComponentLocation() + GetForwardVector() * HoldDist;
-
-	PhysicsHandle->SetTargetLocationAndRotation(TargetLocation, GetComponentRotation());
+		PhysicsHandle->SetTargetLocationAndRotation(TargetLocation, GetComponentRotation());
+	}
 }
 
 void UGrabber::Release() {
-	UE_LOG(LogTemp, Display, TEXT("Released Grabber"));
+	UPhysicsHandleComponent *PhysicsHandle = GetPhysicsHandle();
+	
+	if (PhysicsHandle && PhysicsHandle->GetGrabbedComponent()) {
+		PhysicsHandle->GetGrabbedComponent()->GetOwner()->Tags.Remove("Grabbed");
+		PhysicsHandle->ReleaseComponent();
+		
+	}
 }
 
 void UGrabber::Grab() {
-	
+	UPhysicsHandleComponent *PhysicsHandle = GetPhysicsHandle();
 	if (PhysicsHandle == nullptr)
 		return;
-	UE_LOG(LogTemp, Warning, TEXT("AAAAAAAAHAHAHAA"));
-	FVector Start = GetComponentLocation();
-	FVector End = Start + GetForwardVector() * MaxGrabDist;
 
-	FCollisionShape Sphere = FCollisionShape::MakeSphere(GrabRadius);
 	FHitResult HitResult;
-	bool HasHit = GetWorld()->SweepSingleByChannel(HitResult, Start, End,
-	 FQuat::Identity, ECC_GameTraceChannel2, Sphere);
+	bool HasHit = GetGrabbable(HitResult);
+	
 	if (HasHit) {
-		PhysicsHandle->GrabComponentAtLocationWithRotation(HitResult.GetComponent(),
+		UPrimitiveComponent *HitComponent = HitResult.GetComponent();
+		HitComponent->WakeAllRigidBodies();
+		PhysicsHandle->GrabComponentAtLocationWithRotation(HitComponent,
 		 NAME_None, HitResult.ImpactPoint, GetComponentRotation());
+		HitResult.GetActor()->Tags.Add("Grabbed");
 	} else {
 		UE_LOG(LogTemp, Display, TEXT("Miss"));
 	}
+}
+
+bool UGrabber::GetGrabbable(FHitResult &HitResult) const {
+	FVector Start = GetComponentLocation();
+	FVector End = Start + GetForwardVector() * MaxGrabDist;
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(GrabRadius);
+	return GetWorld()->SweepSingleByChannel(HitResult, Start, End,
+	 FQuat::Identity, ECC_GameTraceChannel2, Sphere);
+}
+
+UPhysicsHandleComponent *UGrabber::GetPhysicsHandle() {
+	UPhysicsHandleComponent *PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	return PhysicsHandle;
 }
